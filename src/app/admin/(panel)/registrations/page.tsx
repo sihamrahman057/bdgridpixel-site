@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { connection } from "next/server";
 import { ClearDialog } from "@/components/admin/clear-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -23,7 +22,6 @@ export default async function RegistrationsPage({
 }: {
   searchParams: Promise<{ q?: string; page?: string }>;
 }) {
-  await connection();
   const params = await searchParams;
   const query = params.q ?? "";
   const page = Number(params.page ?? "1");

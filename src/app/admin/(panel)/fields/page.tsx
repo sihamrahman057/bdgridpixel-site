@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { EventSetup } from "@/components/admin/event-setup";
 import { FieldEditor } from "@/components/admin/field-editor";
 import { getCurrentStaff } from "@/lib/auth";
@@ -8,7 +7,6 @@ import { canEditContent } from "@/lib/types";
 export const metadata = { title: "Form" };
 
 export default async function FieldsPage() {
-  await connection();
   const [staff, fields, settings] = await Promise.all([
     getCurrentStaff(),
     listFields(),

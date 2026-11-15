@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
+  // Cache Components + cookies() in auth caused intermittent InvariantError on
+  // admin sign-in in development; keep the panel on classic dynamic rendering.
   serverExternalPackages: ["@electric-sql/pglite", "pg"],
   experimental: {
     serverActions: {

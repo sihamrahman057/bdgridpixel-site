@@ -45,8 +45,6 @@ export function Cockpit({ settings }: { settings: EventSettings }) {
   return (
     <section className="cockpit" aria-label="Race dashboard" data-booting={booting ? "true" : "false"}>
       <div className="cockpit-hud">
-        <CockpitDefs />
-
         <div className="race-top" aria-hidden>
           <span className="race-tag">Race HUD</span>
           <div className="shift-lights">
@@ -190,10 +188,19 @@ function RaceDial({
     `A 80 80 0 ${large} 1 ${100 + Math.cos(endRad) * 80} ${100 + Math.sin(endRad) * 80}`,
   ].join(" ");
 
+  const fillId = `faceFill-${tone}`;
+
   return (
     <div className="dial race-dial" data-tone={tone} style={{ ["--needle-angle" as string]: `${needleAngle}deg` }}>
       <svg viewBox="0 0 200 200" aria-hidden>
-        <circle className="dial-face" cx="100" cy="100" r="90" />
+        <defs>
+          <radialGradient id={fillId} cx="50%" cy="42%" r="68%">
+            <stop offset="0%" stopColor="#1a2420" />
+            <stop offset="70%" stopColor="#0c1210" />
+            <stop offset="100%" stopColor="#050807" />
+          </radialGradient>
+        </defs>
+        <circle className="dial-face" cx="100" cy="100" r="90" fill={`url(#${fillId})`} />
         <circle className="dial-ring" cx="100" cy="100" r="88" />
         <g className="dial-ticks">{ticks}</g>
         <path className="dial-arc" d={arcPath} />
@@ -226,16 +233,3 @@ function Telemetry({
   );
 }
 
-function CockpitDefs() {
-  return (
-    <svg width="0" height="0" aria-hidden className="absolute">
-      <defs>
-        <radialGradient id="faceFill" cx="50%" cy="42%" r="68%">
-          <stop offset="0%" stopColor="#151c19" />
-          <stop offset="70%" stopColor="#0a0e0c" />
-          <stop offset="100%" stopColor="#040605" />
-        </radialGradient>
-      </defs>
-    </svg>
-  );
-}

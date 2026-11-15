@@ -1,49 +1,64 @@
-"use client";
-
-import { useActionState, type ReactNode } from "react";
-import { loginAction, setupAction } from "@/lib/actions";
-import type { FormState } from "@/lib/types";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-const empty: FormState = {};
-
-export function SetupForm() {
-  const [state, action, pending] = useActionState(setupAction, empty);
+export function SetupForm({ error }: { error?: string }) {
   return (
     <AuthCard
       kicker="First visit"
       title="Create the owner account"
       copy="This happens once. The owner can later invite a manager or an assistant."
     >
-      <form action={action} className="grid gap-4">
+      <form action="/api/admin/session" method="post" className="grid gap-4">
+        <input type="hidden" name="intent" value="setup" />
         <TextField id="setup-name" name="name" label="Name" autoComplete="name" />
         <TextField id="setup-email" name="email" label="Email" type="email" autoComplete="email" />
-        <TextField id="setup-password" name="password" label="Password" type="password" autoComplete="new-password" hint="At least 8 characters." />
-        {state.error ? <p className="text-sm text-destructive" role="alert">{state.error}</p> : null}
-        <Button type="submit" className="h-10" disabled={pending}>
-          {pending ? "Creating the owner…" : "Create owner and enter"}
+        <TextField
+          id="setup-password"
+          name="password"
+          label="Password"
+          type="password"
+          autoComplete="new-password"
+          hint="At least 8 characters."
+        />
+        {error ? (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <Button type="submit" className="h-10">
+          Create owner and enter
         </Button>
       </form>
     </AuthCard>
   );
 }
 
-export function LoginForm() {
-  const [state, action, pending] = useActionState(loginAction, empty);
+export function LoginForm({ error }: { error?: string }) {
   return (
     <AuthCard
       kicker="Staff entrance"
       title="Sign in"
       copy="Use the email and password the owner gave you."
     >
-      <form action={action} className="grid gap-4">
+      <form action="/api/admin/session" method="post" className="grid gap-4">
+        <input type="hidden" name="intent" value="login" />
         <TextField id="login-email" name="email" label="Email" type="email" autoComplete="email" />
-        <TextField id="login-password" name="password" label="Password" type="password" autoComplete="current-password" />
-        {state.error ? <p className="text-sm text-destructive" role="alert">{state.error}</p> : null}
-        <Button type="submit" className="h-10" disabled={pending}>
-          {pending ? "Checking…" : "Enter the panel"}
+        <TextField
+          id="login-password"
+          name="password"
+          label="Password"
+          type="password"
+          autoComplete="current-password"
+        />
+        {error ? (
+          <p className="text-sm text-destructive" role="alert">
+            {error}
+          </p>
+        ) : null}
+        <Button type="submit" className="h-10">
+          Enter the panel
         </Button>
       </form>
     </AuthCard>

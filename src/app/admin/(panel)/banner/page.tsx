@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { BannerEditor } from "@/components/admin/banner-editor";
 import { getCurrentStaff } from "@/lib/auth";
 import { getSettings } from "@/lib/event-store";
@@ -7,7 +6,6 @@ import { canEditContent } from "@/lib/types";
 export const metadata = { title: "Banner" };
 
 export default async function BannerPage() {
-  await connection();
   const [staff, settings] = await Promise.all([getCurrentStaff(), getSettings()]);
   if (!staff) return null;
   return (

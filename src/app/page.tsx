@@ -1,6 +1,5 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { connection } from "next/server";
 import { Cockpit } from "@/components/cockpit";
 import { EventBanner } from "@/components/event-banner";
 import { RegisterForm } from "@/components/register-form";
@@ -15,7 +14,6 @@ export default function Home() {
 }
 
 async function HomeContent() {
-  await connection();
   const [settings, fields] = await Promise.all([getSettings(), listFields()]);
   return (
     <>

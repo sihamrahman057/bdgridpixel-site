@@ -1,5 +1,4 @@
 import { Suspense, type ReactNode } from "react";
-import { connection } from "next/server";
 import { redirect } from "next/navigation";
 import { AdminShell } from "@/components/admin/shell";
 import { getCurrentStaff } from "@/lib/auth";
@@ -13,7 +12,6 @@ export default function PanelLayout({ children }: { children: ReactNode }) {
 }
 
 async function Guard({ children }: { children: ReactNode }) {
-  await connection();
   const staff = await getCurrentStaff();
   if (!staff) redirect("/admin");
   return (

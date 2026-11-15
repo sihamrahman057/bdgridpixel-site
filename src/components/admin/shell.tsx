@@ -4,7 +4,6 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gauge, ImageIcon, LogOut, TextCursorInput, Users, ClipboardList } from "lucide-react";
-import { logoutAction } from "@/lib/actions";
 import type { Staff } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "cn";
@@ -33,7 +32,8 @@ export function AdminShell({ staff, children }: { staff: Staff; children: ReactN
             <Button variant="outline" className="h-9" render={<Link href="/" />} nativeButton={false}>
               View the page
             </Button>
-            <form action={logoutAction}>
+            <form action="/api/admin/session" method="post">
+              <input type="hidden" name="intent" value="logout" />
               <Button type="submit" variant="ghost" className="h-9">
                 <LogOut />
                 Sign out

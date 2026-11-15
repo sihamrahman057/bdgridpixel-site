@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { HeroEditor } from "@/components/admin/hero-editor";
 import { getCurrentStaff } from "@/lib/auth";
 import { getSettings } from "@/lib/event-store";
@@ -7,7 +6,6 @@ import { canEditContent } from "@/lib/types";
 export const metadata = { title: "Hero" };
 
 export default async function HeroPage() {
-  await connection();
   const [staff, settings] = await Promise.all([getCurrentStaff(), getSettings()]);
   if (!staff) return null;
   return (

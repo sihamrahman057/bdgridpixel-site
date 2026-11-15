@@ -1,4 +1,3 @@
-import { connection } from "next/server";
 import { StaffManager } from "@/components/admin/staff-manager";
 import { getCurrentStaff } from "@/lib/auth";
 import { listStaff } from "@/lib/event-store";
@@ -6,7 +5,6 @@ import { listStaff } from "@/lib/event-store";
 export const metadata = { title: "Staff" };
 
 export default async function StaffPage() {
-  await connection();
   const [staff, people] = await Promise.all([getCurrentStaff(), listStaff()]);
   if (!staff) return null;
   return (
