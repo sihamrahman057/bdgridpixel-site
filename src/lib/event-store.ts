@@ -10,6 +10,7 @@ import type {
   Registration,
   RegisterResult,
   Role,
+  SiteNotification,
   Staff,
 } from "@/lib/types";
 import { isFieldType, isRole } from "@/lib/types";
@@ -41,6 +42,11 @@ type SettingsRow = {
   banner_button_url: string;
   banner_image_url: string;
   has_banner_image: boolean | string;
+  has_site_logo: boolean | string;
+  social_discord: string;
+  social_instagram: string;
+  social_youtube: string;
+  social_facebook: string;
   updated_at: Date | string;
 };
 
@@ -63,7 +69,10 @@ export async function getSettings(): Promise<EventSettings> {
     `select event_name, event_date, event_place, event_status, registration_closes_at,
             banner_eyebrow, banner_title, banner_body,
             banner_button_label, banner_button_url, banner_image_url,
-            (banner_image is not null) as has_banner_image, updated_at
+            (banner_image is not null) as has_banner_image,
+            (site_logo is not null) as has_site_logo,
+            social_discord, social_instagram, social_youtube, social_facebook,
+            updated_at
      from event_settings where id = 1`,
   );
   const row = rows[0];
@@ -181,6 +190,91 @@ export async function getBannerImage() {
   const bytes = toBytes(row?.banner_image);
   if (!row || !bytes || !row.banner_image_type) return null;
   return { bytes, type: row.banner_image_type };
+}
+
+export async function setSiteLogo(bytes: Uint8Array, type: string) {
+  if (bytes.byteLength === 0) return "Choose a logo to upload.";
+  if (bytes.byteLength > IMAGE_LIMIT) return "Use a logo smaller than 1.5 MB.";
+  const sniffed = sniffImage(bytes);
+  if (!sniffed || sniffed !== type) return "Upload a JPEG, PNG, WEBP, or GIF.";
+  await sql(
+    `update event_settings set site_logo = $1, site_logo_type = $2, updated_at = now() where id = 1`,
+    [Buffer.from(bytes), sniffed],
+  );
+  return null;
+}
+
+export async function clearSiteLogo() {
+  await sql(`update event_settings set site_logo = null, site_logo_type = null, updated_at = now() where id = 1`);
+}
+
+export async function getSiteLogo() {
+  const rows = await sql<{ site_logo: unknown; site_logo_type: string | null }>(
+    `select site_logo, site_logo_type from event_settings where id = 1`,
+  );
+  const row = rows[0];
+  const bytes = toBytes(row?.site_logo);
+  if (!row || !bytes || !row.site_logo_type) return null;
+  return { bytes, type: row.site_logo_type };
+}
+
+export async function updateSocialLinks(input: {
+  discord: string;
+  instagram: string;
+  youtube: string;
+  facebook: string;
+}) {
+  const links = {
+    discord: normalizeSocial(input.discord),
+    instagram: normalizeSocial(input.instagram),
+    youtube: normalizeSocial(input.youtube),
+    facebook: normalizeSocial(input.facebook),
+  };
+  for (const [name, value] of Object.entries(links)) {
+    if (value.error) return `${name}: ${value.error}`;
+  }
+  await sql(
+    `update event_settings
+     set social_discord = $1, social_instagram = $2, social_youtube = $3, social_facebook = $4, updated_at = now()
+     where id = 1`,
+    [links.discord.href, links.instagram.href, links.youtube.href, links.facebook.href],
+  );
+  return null;
+}
+
+export async function listNotifications(): Promise<SiteNotification[]> {
+  const rows = await sql<{ id: string; title: string; body: string; created_at: Date | string }>(
+    `select id, title, body, created_at from notifications order by created_at desc limit 40`,
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    title: row.title,
+    body: row.body,
+    createdAt: asIso(row.created_at),
+  }));
+}
+
+export async function createNotification(title: string, body: string) {
+  const cleanTitle = cleanText(title, 80);
+  const cleanBody = body.replace(/\u0000/g, "").trim().slice(0, 400);
+  if (!cleanTitle || !cleanBody) return "Add a title and a short message.";
+  await sql(`insert into notifications (id, title, body) values ($1, $2, $3)`, [
+    `ntf_${randomBytes(4).toString("hex")}`,
+    cleanTitle,
+    cleanBody,
+  ]);
+  return null;
+}
+
+export async function deleteNotification(id: string) {
+  await sql(`delete from notifications where id = $1`, [id]);
+}
+
+function normalizeSocial(value: string): { href: string; error?: string } {
+  const trimmed = value.trim();
+  if (!trimmed) return { href: "" };
+  if (!isHttpUrl(trimmed)) return { href: "", error: "use an http:// or https:// link." };
+  return { href: trimmed.slice(0, 500) };
 }
 
 export async function listFields(): Promise<FormField[]> {
@@ -503,6 +597,11 @@ function mapSettings(row: SettingsRow): EventSettings {
     bannerButtonUrl: row.banner_button_url,
     bannerImageUrl: row.banner_image_url,
     hasBannerImage: row.has_banner_image === true || row.has_banner_image === "t" || row.has_banner_image === "true",
+    hasSiteLogo: row.has_site_logo === true || row.has_site_logo === "t" || row.has_site_logo === "true",
+    socialDiscord: row.social_discord ?? "",
+    socialInstagram: row.social_instagram ?? "",
+    socialYoutube: row.social_youtube ?? "",
+    socialFacebook: row.social_facebook ?? "",
     updatedAt: asIso(row.updated_at),
   };
 }

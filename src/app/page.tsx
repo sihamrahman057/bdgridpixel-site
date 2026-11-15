@@ -1,9 +1,10 @@
 import { Suspense } from "react";
-import Link from "next/link";
 import { Cockpit } from "@/components/cockpit";
 import { EventBanner } from "@/components/event-banner";
 import { RegisterForm } from "@/components/register-form";
-import { getSettings, listFields } from "@/lib/event-store";
+import { SiteFooter } from "@/components/site-footer";
+import { SiteTopBar } from "@/components/site-top-bar";
+import { getSettings, listFields, listNotifications } from "@/lib/event-store";
 
 export default function Home() {
   return (
@@ -14,9 +15,14 @@ export default function Home() {
 }
 
 async function HomeContent() {
-  const [settings, fields] = await Promise.all([getSettings(), listFields()]);
+  const [settings, fields, notifications] = await Promise.all([
+    getSettings(),
+    listFields(),
+    listNotifications(),
+  ]);
   return (
     <>
+      <SiteTopBar settings={settings} notifications={notifications} />
       <Cockpit settings={settings} />
       <EventBanner settings={settings} />
       <RegisterForm
@@ -24,12 +30,7 @@ async function HomeContent() {
         closesAt={settings.registrationClosesAt}
         statusText={settings.eventStatus}
       />
-      <footer className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-4 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-        <p>One list for this event. The host clears it when the night is over.</p>
-        <Link href="/admin" className="text-foreground underline-offset-4 hover:underline">
-          Admin
-        </Link>
-      </footer>
+      <SiteFooter settings={settings} />
     </>
   );
 }

@@ -2,7 +2,7 @@
 
 A single public page for one live event, and a staff workshop behind it.
 
-Guests see a driver-cluster hero, a banner, and a registration form. On **Form** in the admin panel, the owner or manager creates the event guests see, chooses which fields to collect, and can set a registration close timer in Bangladesh time (Asia/Dhaka, UTC+6). When that moment passes, registration turns off automatically. The owner can also replace the banner, read the guest list, clear it when the event is over, and invite a manager or assistant.
+Guests see a top bar with the event logo and a notification bell, a driver-cluster hero, a banner, a registration form, and footer social icons. On **Form** in the admin panel, the owner or manager creates the event guests see, chooses which fields to collect, and can set a registration close timer in Bangladesh time (Asia/Dhaka, UTC+6). When that moment passes, registration turns off automatically. **Site** holds the logo and Discord / Instagram / YouTube / Facebook links. **Notices** posts messages to the public bell. The owner can also replace the banner, read the guest list, clear it when the event is over, and invite moderators.
 
 ## Roles
 

@@ -41,7 +41,19 @@ export type EventSettings = {
   bannerButtonUrl: string;
   bannerImageUrl: string;
   hasBannerImage: boolean;
+  hasSiteLogo: boolean;
+  socialDiscord: string;
+  socialInstagram: string;
+  socialYoutube: string;
+  socialFacebook: string;
   updatedAt: string;
+};
+
+export type SiteNotification = {
+  id: string;
+  title: string;
+  body: string;
+  createdAt: string;
 };
 
 export type FormField = {

@@ -7,18 +7,23 @@ import { closeSession, denyUnless, openSession } from "@/lib/auth";
 import {
   clearBannerImage,
   clearRegistrations,
+  clearSiteLogo,
   createField,
+  createNotification,
   createOwner,
   createStaff,
   deleteField,
+  deleteNotification,
   deleteRegistration,
   deleteStaff,
   moveField,
   registerGuest,
   setBannerImage,
+  setSiteLogo,
   updateBanner,
   updateField,
   updateHero,
+  updateSocialLinks,
   verifyLogin,
 } from "@/lib/event-store";
 import { clientIp } from "@/lib/rate-limit";
@@ -174,6 +179,45 @@ export async function removeStaffAction(formData: FormData) {
   const denied = await denyUnless(["owner"]);
   if (denied.error) return;
   await deleteStaff(String(formData.get("id") ?? ""));
+  refresh();
+}
+
+export async function updateSiteBrandAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const denied = await denyUnless(["owner", "manager"]);
+  if (denied.error) return { error: denied.error };
+
+  if (formData.get("removeLogo") === "yes") await clearSiteLogo();
+  const file = formData.get("logo");
+  if (file instanceof File && file.size > 0) {
+    const logoError = await setSiteLogo(new Uint8Array(await file.arrayBuffer()), file.type);
+    if (logoError) return { error: logoError };
+  }
+
+  const socialError = await updateSocialLinks({
+    discord: String(formData.get("discord") ?? ""),
+    instagram: String(formData.get("instagram") ?? ""),
+    youtube: String(formData.get("youtube") ?? ""),
+    facebook: String(formData.get("facebook") ?? ""),
+  });
+  if (socialError) return { error: socialError };
+
+  refresh();
+  return { ok: "Logo and social links are saved." };
+}
+
+export async function createNotificationAction(_prev: FormState, formData: FormData): Promise<FormState> {
+  const denied = await denyUnless(["owner", "manager"]);
+  if (denied.error) return { error: denied.error };
+  const error = await createNotification(String(formData.get("title") ?? ""), String(formData.get("body") ?? ""));
+  if (error) return { error };
+  refresh();
+  return { ok: "Notification published." };
+}
+
+export async function deleteNotificationAction(formData: FormData) {
+  const denied = await denyUnless(["owner", "manager"]);
+  if (denied.error) return;
+  await deleteNotification(String(formData.get("id") ?? ""));
   refresh();
 }
 

@@ -49,30 +49,36 @@ export function LoginForm({
     <AuthCard
       kicker="Control room"
       title="Sign in"
-      copy="Choose Admin or Moderator, then use your email and password."
+      copy="Flip Admin or Moderator, then use your email and password."
     >
-      <form action="/api/admin/session" method="post" className="grid gap-4">
+      <form action="/api/admin/session" method="post" className="grid gap-5">
         <input type="hidden" name="intent" value="login" />
 
-        <fieldset className="login-portal">
+        <fieldset className="login-switches">
           <legend className="sr-only">Sign-in type</legend>
-          <label className="login-portal-option">
-            <input
-              type="radio"
-              name="portal"
-              value="admin"
-              defaultChecked={initialPortal === "admin"}
-            />
-            <span>Admin</span>
+          <label className="login-switch">
+            <span className="login-switch-label">Admin</span>
+            <span className="login-switch-track">
+              <input
+                type="radio"
+                name="portal"
+                value="admin"
+                defaultChecked={initialPortal === "admin"}
+              />
+              <span className="login-switch-thumb" aria-hidden />
+            </span>
           </label>
-          <label className="login-portal-option">
-            <input
-              type="radio"
-              name="portal"
-              value="moderator"
-              defaultChecked={initialPortal === "moderator"}
-            />
-            <span>Moderator</span>
+          <label className="login-switch">
+            <span className="login-switch-label">Moderator</span>
+            <span className="login-switch-track">
+              <input
+                type="radio"
+                name="portal"
+                value="moderator"
+                defaultChecked={initialPortal === "moderator"}
+              />
+              <span className="login-switch-thumb" aria-hidden />
+            </span>
           </label>
         </fieldset>
 

@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Gauge, ImageIcon, LogOut, TextCursorInput, Users, ClipboardList } from "lucide-react";
+import { Bell, Gauge, ImageIcon, LogOut, TextCursorInput, Users, ClipboardList, PanelTop } from "lucide-react";
 import type { Staff } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { cn } from "cn";
@@ -11,6 +11,8 @@ import { cn } from "cn";
 const links = [
   { href: "/admin/registrations", label: "Registrations", icon: ClipboardList },
   { href: "/admin/fields", label: "Form", icon: TextCursorInput },
+  { href: "/admin/site", label: "Site", icon: PanelTop },
+  { href: "/admin/notices", label: "Notices", icon: Bell },
   { href: "/admin/banner", label: "Banner", icon: ImageIcon },
   { href: "/admin/hero", label: "Hero", icon: Gauge },
   { href: "/admin/staff", label: "Moderators", icon: Users, ownerOnly: true },
