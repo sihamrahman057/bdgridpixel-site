@@ -24,7 +24,7 @@ export function AdminShell({ staff, children }: { staff: Staff; children: ReactN
       <header className="border-b border-border bg-card/70">
         <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 md:flex-row md:items-center md:justify-between">
           <div>
-            <p className="font-mono text-[0.68rem] tracking-[0.22em] text-primary uppercase">Workshop</p>
+            <p className="font-mono text-[0.68rem] tracking-[0.22em] text-primary uppercase">Control room</p>
             <p className="text-sm text-muted-foreground">
               {staff.name} · {staff.role}
             </p>

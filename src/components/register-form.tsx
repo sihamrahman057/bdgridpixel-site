@@ -50,7 +50,7 @@ function RegisterFields({ fields, onReset }: { fields: FormField[]; onReset: () 
     <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
       <form action={action} className="console rounded-3xl border border-border p-6 md:p-8" noValidate>
         <div className="mb-6">
-          <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">Center console</p>
+          <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">Guest console</p>
           <h2 className="mt-2 font-display text-4xl leading-none">Tell the host you&apos;re coming</h2>
         </div>
         <div className="grid gap-4">
