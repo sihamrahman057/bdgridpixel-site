@@ -1,44 +1,72 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import type { EventSettings } from "@/lib/types";
+
+const TARGET_SPEED = 248;
+const BOOT_MS = 1800;
 
 export function Cockpit({ settings }: { settings: EventSettings }) {
   const open = settings.eventStatus.toLowerCase().includes("open");
+  const [speed, setSpeed] = useState(0);
+  const [booting, setBooting] = useState(true);
+
+  useEffect(() => {
+    let frame = 0;
+    const started = performance.now();
+    const tick = (now: number) => {
+      const t = Math.min(1, (now - started) / BOOT_MS);
+      const eased = 1 - Math.pow(1 - t, 3);
+      setSpeed(Math.round(TARGET_SPEED * eased));
+      if (t < 1) {
+        frame = requestAnimationFrame(tick);
+      } else {
+        setBooting(false);
+      }
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
+
+  const rpmProgress = Math.min(1, speed / TARGET_SPEED);
+  const needleAngle = -120 + rpmProgress * 240;
+
   return (
-    <section className="cockpit" aria-label="Event">
-      <div className="cockpit-stage">
+    <section className="cockpit" aria-label="Race dashboard" data-booting={booting ? "true" : "false"}>
+      <div className="cockpit-hud">
         <CockpitDefs />
-        <div className="cockpit-brow">
-          <div className="brow-side">
-            <span className="stitch" aria-hidden />
-            <span>Driver</span>
+
+        <div className="race-top" aria-hidden>
+          <span className="race-tag">Race HUD</span>
+          <div className="shift-lights">
+            {Array.from({ length: 10 }, (_, index) => {
+              const on = rpmProgress > (index + 1) / 11;
+              const tone = index < 6 ? "green" : index < 8 ? "white" : "red";
+              return <span key={index} className="shift-light" data-on={on ? "true" : "false"} data-tone={tone} />;
+            })}
           </div>
-          <div className="brow-center" aria-hidden>
-            <span className="lamp" data-on="true" />
-            <span>D-section cluster</span>
-            <span className="lamp" data-tone="red" data-on={open ? "false" : "true"} />
-          </div>
-          <div className="brow-side">
-            <span>Instrument pack</span>
-            <span className="stitch stitch-red" aria-hidden />
-          </div>
+          <span className="race-tag race-tag-right">{open ? "Green flag" : "Hold"}</span>
         </div>
 
-        <div className="cluster">
-          <div className="cluster-column">
-            <Dial
-              label="Date"
-              value={settings.eventDate}
-              sub="Schedule"
+        <div className="race-grid">
+          <aside className="race-column">
+            <RaceDial
+              label="RPM"
+              value={`${Math.round(rpmProgress * 8)}.${Math.round((rpmProgress * 80) % 10)}`}
+              unit="x1000"
               tone="green"
-              needleAngle={-28}
-              progress={0.72}
+              needleAngle={needleAngle}
+              progress={rpmProgress}
+              redlineFrom={0.78}
             />
-            <div className="mini-row">
-              <MiniGauge label="IGN" value="READY" tone="green" level={7} />
-              <MiniGauge label="TEMP" value="72°" tone="white" level={4} />
+            <div className="telemetry-stack">
+              <Telemetry label="GEAR" value={speed < 40 ? "N" : speed < 90 ? "2" : speed < 150 ? "4" : "6"} tone="white" />
+              <Telemetry label="LAP" value="01" tone="green" />
+              <Telemetry label="DELTA" value="-0.42" tone="green" />
             </div>
-          </div>
+          </aside>
 
-          <div className="center-readout">
+          <div className="race-center">
             <p className="center-kicker">Event</p>
             <h1 className="event-name">{settings.eventName}</h1>
             <p className="event-status">
@@ -46,199 +74,144 @@ export function Cockpit({ settings }: { settings: EventSettings }) {
               {settings.eventStatus}
             </p>
 
-            <div className="warning-rail" aria-hidden>
-              <WarnLight label="ABS" active={false} />
-              <WarnLight label="OIL" active={false} tone="red" />
-              <WarnLight label="BATT" active />
-              <WarnLight label="DOOR" active={false} tone="red" />
-              <WarnLight label="ESP" active />
+            <div className="speed-block" aria-live="polite">
+              <p className="speed-label">Speed</p>
+              <p className="speed-digits">
+                <span>{String(speed).padStart(3, "0")}</span>
+                <span className="speed-unit">km/h</span>
+              </p>
+              <div className="speed-bar" aria-hidden>
+                <span style={{ width: `${Math.min(100, (speed / TARGET_SPEED) * 100)}%` }} />
+              </div>
+              <p className="speed-note">{booting ? "Launch sequence" : "Race pace locked"}</p>
             </div>
 
-            <div className="center-screen" aria-hidden>
-              <div className="screen-top">
-                <span>Trip computer</span>
-                <span>CH 01</span>
+            <dl className="race-meta">
+              <div>
+                <dt>Date</dt>
+                <dd>{settings.eventDate}</dd>
               </div>
-              <div className="screen-grid">
-                <div className="screen-cell">
-                  <span className="pill-label">Mode</span>
-                  <strong>Event</strong>
-                </div>
-                <div className="screen-cell">
-                  <span className="pill-label">Lane</span>
-                  <strong>Public</strong>
-                </div>
-                <div className="screen-cell">
-                  <span className="pill-label">Link</span>
-                  <strong>Live</strong>
-                </div>
+              <div>
+                <dt>Place</dt>
+                <dd>{settings.eventPlace}</dd>
               </div>
-              <div className="screen-wave" />
-            </div>
+            </dl>
           </div>
 
-          <div className="cluster-column">
-            <Dial
-              label="Place"
-              value={settings.eventPlace}
-              sub="Venue"
+          <aside className="race-column">
+            <RaceDial
+              label="THR"
+              value={`${Math.round(rpmProgress * 100)}`}
+              unit="%"
               tone="red"
-              needleAngle={34}
-              progress={0.64}
+              needleAngle={-120 + rpmProgress * 210}
+              progress={rpmProgress * 0.88}
+              redlineFrom={0.82}
             />
-            <div className="mini-row">
-              <MiniGauge label="FUEL" value="OK" tone="green" level={6} />
-              <MiniGauge label="ALERT" value={open ? "OFF" : "ON"} tone="red" level={open ? 1 : 5} />
+            <div className="telemetry-stack">
+              <Telemetry label="TEMP" value="92°" tone="white" />
+              <Telemetry label="FUEL" value="OK" tone="green" />
+              <Telemetry label="ALERT" value={open ? "OFF" : "ON"} tone="red" />
             </div>
-          </div>
+          </aside>
         </div>
 
-        <div className="footer-rail" aria-hidden>
-          <div className="vent-row">
-            <div className="vent" />
-            <div className="pill-row">
-              <span className="pill">
-                <span className="lamp" data-on="true" />
-                Systems check
-              </span>
-              <span className="pill">
-                <span className="lamp" data-tone="red" data-on={!open} />
-                Hazard {open ? "clear" : "hold"}
-              </span>
-              <span className="pill">White bezel / green signal</span>
-            </div>
-            <div className="vent" />
+        <div className="race-footer" aria-hidden>
+          <div className="race-stripe" />
+          <div className="pill-row">
+            <span className="pill">
+              <span className="lamp" data-on="true" />
+              Systems ready
+            </span>
+            <span className="pill">
+              <span className="lamp" data-tone="red" data-on={!open} />
+              Pit {open ? "clear" : "hold"}
+            </span>
+            <span className="pill">Borderless race pack</span>
           </div>
-          <div className="horizon" />
         </div>
       </div>
     </section>
   );
 }
 
-function Dial({
+function RaceDial({
   label,
   value,
-  sub,
+  unit,
   tone,
   needleAngle,
   progress,
+  redlineFrom,
 }: {
   label: string;
   value: string;
-  sub: string;
+  unit: string;
   tone: "green" | "red";
   needleAngle: number;
   progress: number;
+  redlineFrom: number;
 }) {
-  const ticks = Array.from({ length: 41 }, (_, index) => {
-    const angle = (-210 + (index * 240) / 40) * (Math.PI / 180);
-    const major = index % 5 === 0;
-    const inner = major ? 58 : 68;
-    const outer = 84;
+  const ticks = Array.from({ length: 49 }, (_, index) => {
+    const angle = (-120 + (index * 240) / 48) * (Math.PI / 180);
+    const major = index % 4 === 0;
+    const inRed = index / 48 >= redlineFrom;
     return (
       <line
         key={index}
         className={major ? undefined : "dial-ticks-minor"}
-        x1={100 + Math.cos(angle) * outer}
-        y1={108 + Math.sin(angle) * outer}
-        x2={100 + Math.cos(angle) * inner}
-        y2={108 + Math.sin(angle) * inner}
-        strokeWidth={major ? 2 : 1}
+        stroke={inRed ? "#e53935" : undefined}
+        x1={100 + Math.cos(angle) * 86}
+        y1={100 + Math.sin(angle) * 86}
+        x2={100 + Math.cos(angle) * (major ? 70 : 78)}
+        y2={100 + Math.sin(angle) * (major ? 70 : 78)}
+        strokeWidth={major ? 2.2 : 1}
       />
     );
   });
 
-  const numbers = [0, 1, 2, 3, 4, 5, 6, 7, 8].map((n) => {
-    const angle = (-210 + (n * 240) / 8) * (Math.PI / 180);
-    return (
-      <text
-        key={n}
-        x={100 + Math.cos(angle) * 46}
-        y={108 + Math.sin(angle) * 46 + 3}
-        textAnchor="middle"
-        fill={tone === "green" ? "#9fefb8" : "#ffb4b0"}
-        fontSize="8"
-        fontFamily="var(--font-geist-mono), monospace"
-      >
-        {n}
-      </text>
-    );
-  });
-
-  const end = -210 + progress * 240;
-  const startRad = (-210 * Math.PI) / 180;
+  const end = -120 + progress * 240;
+  const startRad = (-120 * Math.PI) / 180;
   const endRad = (end * Math.PI) / 180;
   const large = progress > 0.5 ? 1 : 0;
   const arcPath = [
-    `M ${100 + Math.cos(startRad) * 78} ${108 + Math.sin(startRad) * 78}`,
-    `A 78 78 0 ${large} 1 ${100 + Math.cos(endRad) * 78} ${108 + Math.sin(endRad) * 78}`,
+    `M ${100 + Math.cos(startRad) * 80} ${100 + Math.sin(startRad) * 80}`,
+    `A 80 80 0 ${large} 1 ${100 + Math.cos(endRad) * 80} ${100 + Math.sin(endRad) * 80}`,
   ].join(" ");
 
   return (
-    <div className="dial" data-tone={tone} style={{ ["--needle-angle" as string]: `${needleAngle}deg` }}>
+    <div className="dial race-dial" data-tone={tone} style={{ ["--needle-angle" as string]: `${needleAngle}deg` }}>
       <svg viewBox="0 0 200 200" aria-hidden>
-        <circle className="dial-bezel" cx="100" cy="108" r="92" />
-        <circle className="dial-face" cx="100" cy="108" r="84" />
-        <circle className="dial-ring" cx="100" cy="108" r="80" />
-        <circle className="dial-ring" cx="100" cy="108" r="70" strokeWidth="1" opacity="0.55" />
+        <circle className="dial-face" cx="100" cy="100" r="90" />
+        <circle className="dial-ring" cx="100" cy="100" r="88" />
         <g className="dial-ticks">{ticks}</g>
-        {numbers}
         <path className="dial-arc" d={arcPath} />
-        <line className="dial-needle" x1="100" y1="108" x2="100" y2="42" />
-        <circle className="dial-hub" cx="100" cy="108" r="5.5" />
+        <line className="dial-needle race-needle" x1="100" y1="100" x2="100" y2="28" />
+        <circle className="dial-hub" cx="100" cy="100" r="6" />
       </svg>
-      <div className="dial-readout">
+      <div className="dial-readout race-dial-readout">
         <p className="dial-kicker">{label}</p>
         <p className="dial-value">{value}</p>
-        <p className="dial-sub">{sub}</p>
+        <p className="dial-sub">{unit}</p>
       </div>
     </div>
   );
 }
 
-function MiniGauge({
+function Telemetry({
   label,
   value,
   tone,
-  level,
 }: {
   label: string;
   value: string;
   tone: "green" | "red" | "white";
-  level: number;
 }) {
   return (
-    <div className="mini-gauge" data-tone={tone}>
-      <div className="mini-top">
-        <span className="rail-label" style={{ color: tone === "red" ? "var(--signal-red)" : tone === "white" ? "#f4f7f5" : "var(--signal-green)" }}>
-          {label}
-        </span>
-        <span className="mini-value">{value}</span>
-      </div>
-      <div className="mini-bars" aria-hidden>
-        {Array.from({ length: 8 }, (_, index) => (
-          <span key={index} data-on={index < level ? "true" : "false"} style={{ height: `${30 + index * 8}%` }} />
-        ))}
-      </div>
+    <div className="telemetry" data-tone={tone}>
+      <span>{label}</span>
+      <strong>{value}</strong>
     </div>
-  );
-}
-
-function WarnLight({
-  label,
-  active = false,
-  tone = "green",
-}: {
-  label: string;
-  active?: boolean;
-  tone?: "green" | "red";
-}) {
-  return (
-    <span className="warn-light" data-active={active ? "true" : "false"} data-tone={tone}>
-      <span className="lamp" data-tone={tone} data-on={active ? "true" : "false"} />
-      {label}
-    </span>
   );
 }
 
@@ -246,15 +219,10 @@ function CockpitDefs() {
   return (
     <svg width="0" height="0" aria-hidden className="absolute">
       <defs>
-        <radialGradient id="bezelFill" cx="35%" cy="20%" r="75%">
-          <stop offset="0%" stopColor="#3a4641" />
-          <stop offset="45%" stopColor="#1a221f" />
-          <stop offset="100%" stopColor="#070908" />
-        </radialGradient>
-        <radialGradient id="faceFill" cx="50%" cy="40%" r="65%">
-          <stop offset="0%" stopColor="#18201d" />
-          <stop offset="70%" stopColor="#0c100e" />
-          <stop offset="100%" stopColor="#050706" />
+        <radialGradient id="faceFill" cx="50%" cy="42%" r="68%">
+          <stop offset="0%" stopColor="#151c19" />
+          <stop offset="70%" stopColor="#0a0e0c" />
+          <stop offset="100%" stopColor="#040605" />
         </radialGradient>
       </defs>
     </svg>
