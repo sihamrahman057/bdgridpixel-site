@@ -15,7 +15,7 @@ export function StaffManager({ staff, currentId }: { staff: Staff[]; currentId: 
   return (
     <div className="grid gap-4">
       <form action={action} className="grid gap-3 rounded-xl border border-border bg-card p-4">
-        <h2 className="font-display text-2xl">Give someone access</h2>
+        <h2 className="font-display text-2xl">Invite a moderator</h2>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="grid gap-1.5">
             <Label htmlFor="staff-name">Name</Label>
@@ -32,8 +32,8 @@ export function StaffManager({ staff, currentId }: { staff: Staff[]; currentId: 
           <div className="grid gap-1.5">
             <Label htmlFor="staff-role">Access</Label>
             <select id="staff-role" name="role" defaultValue="assistant" className="h-10 rounded-lg border border-input bg-input/30 px-3 text-sm">
-              <option value="manager">Manager — edit the page and remove a guest</option>
-              <option value="assistant">Assistant — view and export the list</option>
+              <option value="manager">Moderator (manager) — edit the page and remove a guest</option>
+              <option value="assistant">Moderator (assistant) — view and export the list</option>
             </select>
           </div>
         </div>

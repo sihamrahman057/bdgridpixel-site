@@ -82,12 +82,29 @@ export async function POST(request: Request) {
     return attachSession(NextResponse.redirect(adminUrl(request, "/admin/registrations"), 303), token);
   }
 
+  const portal = String(form.get("portal") ?? "admin") === "moderator" ? "moderator" : "admin";
   const staff = await verifyLogin(String(form.get("email") ?? ""), String(form.get("password") ?? ""));
   if (!staff) {
     const url = adminUrl(request, "/admin");
-    url.searchParams.set("error", "That email and password do not match a staff account.");
+    url.searchParams.set("error", "That email and password do not match an account.");
+    url.searchParams.set("portal", portal);
     return NextResponse.redirect(url, 303);
   }
+
+  const isAdminAccount = staff.role === "owner";
+  if (portal === "admin" && !isAdminAccount) {
+    const url = adminUrl(request, "/admin");
+    url.searchParams.set("error", "That account is a moderator. Switch to Moderator to sign in.");
+    url.searchParams.set("portal", "moderator");
+    return NextResponse.redirect(url, 303);
+  }
+  if (portal === "moderator" && isAdminAccount) {
+    const url = adminUrl(request, "/admin");
+    url.searchParams.set("error", "That account is the admin. Switch to Admin to sign in.");
+    url.searchParams.set("portal", "admin");
+    return NextResponse.redirect(url, 303);
+  }
+
   const token = await openSessionToken(staff.id);
   return attachSession(NextResponse.redirect(adminUrl(request, "/admin/registrations"), 303), token);
 }

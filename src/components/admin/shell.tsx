@@ -13,7 +13,7 @@ const links = [
   { href: "/admin/fields", label: "Form", icon: TextCursorInput },
   { href: "/admin/banner", label: "Banner", icon: ImageIcon },
   { href: "/admin/hero", label: "Hero", icon: Gauge },
-  { href: "/admin/staff", label: "Staff", icon: Users, ownerOnly: true },
+  { href: "/admin/staff", label: "Moderators", icon: Users, ownerOnly: true },
 ];
 
 export function AdminShell({ staff, children }: { staff: Staff; children: ReactNode }) {

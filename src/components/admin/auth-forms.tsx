@@ -1,17 +1,23 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "cn";
+
+export type LoginPortal = "admin" | "moderator";
 
 export function SetupForm({ error }: { error?: string }) {
   return (
     <AuthCard
       kicker="First visit"
-      title="Create the owner account"
-      copy="This happens once. The owner can later invite a manager or an assistant."
+      title="Create the admin account"
+      copy="This happens once. The admin can later invite moderators to help run the event."
     >
       <form action="/api/admin/session" method="post" className="grid gap-4">
         <input type="hidden" name="intent" value="setup" />
+        <input type="hidden" name="portal" value="admin" />
         <TextField id="setup-name" name="name" label="Name" autoComplete="name" />
         <TextField id="setup-email" name="email" label="Email" type="email" autoComplete="email" />
         <TextField
@@ -28,22 +34,72 @@ export function SetupForm({ error }: { error?: string }) {
           </p>
         ) : null}
         <Button type="submit" className="h-10">
-          Create owner and enter
+          Create admin and enter
         </Button>
       </form>
     </AuthCard>
   );
 }
 
-export function LoginForm({ error }: { error?: string }) {
+export function LoginForm({
+  error,
+  initialPortal = "admin",
+}: {
+  error?: string;
+  initialPortal?: LoginPortal;
+}) {
+  const [portal, setPortal] = useState<LoginPortal>(initialPortal);
+  const isAdmin = portal === "admin";
+
   return (
     <AuthCard
-      kicker="Staff entrance"
+      kicker="Control room"
       title="Sign in"
-      copy="Use the email and password the owner gave you."
+      copy={
+        isAdmin
+          ? "Admin access for the event owner. Full control of the panel."
+          : "Moderator access for invited helpers. Use the email and password the admin gave you."
+      }
     >
       <form action="/api/admin/session" method="post" className="grid gap-4">
         <input type="hidden" name="intent" value="login" />
+        <input type="hidden" name="portal" value={portal} />
+
+        <div
+          className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted/40 p-1"
+          role="tablist"
+          aria-label="Sign-in type"
+        >
+          <button
+            type="button"
+            role="tab"
+            aria-selected={isAdmin}
+            className={cn(
+              "h-10 rounded-lg text-sm font-medium transition-colors",
+              isAdmin
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            onClick={() => setPortal("admin")}
+          >
+            Admin
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={!isAdmin}
+            className={cn(
+              "h-10 rounded-lg text-sm font-medium transition-colors",
+              !isAdmin
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+            onClick={() => setPortal("moderator")}
+          >
+            Moderator
+          </button>
+        </div>
+
         <TextField id="login-email" name="email" label="Email" type="email" autoComplete="email" />
         <TextField
           id="login-password"
@@ -58,7 +114,7 @@ export function LoginForm({ error }: { error?: string }) {
           </p>
         ) : null}
         <Button type="submit" className="h-10">
-          Enter the panel
+          {isAdmin ? "Enter as admin" : "Enter as moderator"}
         </Button>
       </form>
     </AuthCard>

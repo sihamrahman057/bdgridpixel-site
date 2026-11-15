@@ -27,7 +27,7 @@ async function HomeContent() {
       <footer className="mx-auto flex w-full max-w-5xl flex-col gap-3 px-4 py-10 text-sm text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
         <p>One list for this event. The host clears it when the night is over.</p>
         <Link href="/admin" className="text-foreground underline-offset-4 hover:underline">
-          Staff
+          Admin
         </Link>
       </footer>
     </>
