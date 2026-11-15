@@ -1,7 +1,4 @@
 import type { ReactNode } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 export type LoginPortal = "admin" | "moderator";
 
@@ -15,9 +12,9 @@ export function SetupForm({ error }: { error?: string }) {
       <form action="/api/admin/session" method="post" className="grid gap-4">
         <input type="hidden" name="intent" value="setup" />
         <input type="hidden" name="portal" value="admin" />
-        <TextField id="setup-name" name="name" label="Name" autoComplete="name" />
-        <TextField id="setup-email" name="email" label="Email" type="email" autoComplete="email" />
-        <TextField
+        <Field id="setup-name" name="name" label="Name" autoComplete="name" />
+        <Field id="setup-email" name="email" label="Email" type="email" autoComplete="email" />
+        <Field
           id="setup-password"
           name="password"
           label="Password"
@@ -30,9 +27,9 @@ export function SetupForm({ error }: { error?: string }) {
             {error}
           </p>
         ) : null}
-        <Button type="submit" className="h-10">
+        <button type="submit" className="login-submit">
           Create admin and enter
-        </Button>
+        </button>
       </form>
     </AuthCard>
   );
@@ -49,41 +46,34 @@ export function LoginForm({
     <AuthCard
       kicker="Control room"
       title="Sign in"
-      copy="Flip Admin or Moderator, then use your email and password."
+      copy="Leave the switch on Admin for the owner account. Slide it right for Moderator."
     >
       <form action="/api/admin/session" method="post" className="grid gap-5">
         <input type="hidden" name="intent" value="login" />
 
-        <fieldset className="login-switches">
-          <legend className="sr-only">Sign-in type</legend>
-          <label className="login-switch">
-            <span className="login-switch-label">Admin</span>
-            <span className="login-switch-track">
-              <input
-                type="radio"
-                name="portal"
-                value="admin"
-                defaultChecked={initialPortal === "admin"}
-              />
-              <span className="login-switch-thumb" aria-hidden />
+        <div className="portal-toggle" role="group" aria-label="Sign-in type">
+          <span className="portal-toggle-side" data-active={initialPortal === "admin" ? "true" : "false"}>
+            Admin
+          </span>
+          <label className="portal-toggle-switch">
+            <input
+              type="checkbox"
+              name="portal"
+              value="moderator"
+              defaultChecked={initialPortal === "moderator"}
+              aria-label="Moderator mode"
+            />
+            <span className="portal-toggle-track" aria-hidden>
+              <span className="portal-toggle-thumb" />
             </span>
           </label>
-          <label className="login-switch">
-            <span className="login-switch-label">Moderator</span>
-            <span className="login-switch-track">
-              <input
-                type="radio"
-                name="portal"
-                value="moderator"
-                defaultChecked={initialPortal === "moderator"}
-              />
-              <span className="login-switch-thumb" aria-hidden />
-            </span>
-          </label>
-        </fieldset>
+          <span className="portal-toggle-side" data-active={initialPortal === "moderator" ? "true" : "false"}>
+            Moderator
+          </span>
+        </div>
 
-        <TextField id="login-email" name="email" label="Email" type="email" autoComplete="email" />
-        <TextField
+        <Field id="login-email" name="email" label="Email" type="email" autoComplete="email" />
+        <Field
           id="login-password"
           name="password"
           label="Password"
@@ -95,9 +85,9 @@ export function LoginForm({
             {error}
           </p>
         ) : null}
-        <Button type="submit" className="h-10">
+        <button type="submit" className="login-submit">
           Enter the panel
-        </Button>
+        </button>
       </form>
     </AuthCard>
   );
@@ -124,7 +114,7 @@ function AuthCard({
   );
 }
 
-function TextField({
+function Field({
   id,
   name,
   label,
@@ -141,8 +131,17 @@ function TextField({
 }) {
   return (
     <div className="grid gap-1.5">
-      <Label htmlFor={id}>{label}</Label>
-      <Input id={id} name={name} type={type} autoComplete={autoComplete} required className="h-10" />
+      <label htmlFor={id} className="text-sm font-medium">
+        {label}
+      </label>
+      <input
+        id={id}
+        name={name}
+        type={type}
+        autoComplete={autoComplete}
+        required
+        className="login-input"
+      />
       {hint ? <p className="text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );

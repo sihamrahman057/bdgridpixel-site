@@ -82,11 +82,18 @@ export async function POST(request: Request) {
     return attachSession(NextResponse.redirect(adminUrl(request, "/admin/registrations"), 303), token);
   }
 
-  const portal = String(form.get("portal") ?? "admin") === "moderator" ? "moderator" : "admin";
-  const staff = await verifyLogin(String(form.get("email") ?? ""), String(form.get("password") ?? ""));
+  // Checkbox only posts when checked (moderator). Missing/empty = admin (left).
+  const portalRaw = form.get("portal");
+  const portal = portalRaw === "moderator" ? "moderator" : "admin";
+  const email = String(form.get("email") ?? "");
+  const password = String(form.get("password") ?? "");
+  const staff = await verifyLogin(email, password);
   if (!staff) {
     const url = adminUrl(request, "/admin");
-    url.searchParams.set("error", "That email and password do not match an account.");
+    url.searchParams.set(
+      "error",
+      "That email and password do not match an account. Use the exact admin email you created, with the switch on Admin (left).",
+    );
     url.searchParams.set("portal", portal);
     return NextResponse.redirect(url, 303);
   }
@@ -94,13 +101,13 @@ export async function POST(request: Request) {
   const isAdminAccount = staff.role === "owner";
   if (portal === "admin" && !isAdminAccount) {
     const url = adminUrl(request, "/admin");
-    url.searchParams.set("error", "That account is a moderator. Switch to Moderator to sign in.");
+    url.searchParams.set("error", "That account is a moderator. Slide the switch right to Moderator.");
     url.searchParams.set("portal", "moderator");
     return NextResponse.redirect(url, 303);
   }
   if (portal === "moderator" && isAdminAccount) {
     const url = adminUrl(request, "/admin");
-    url.searchParams.set("error", "That account is the admin. Switch to Admin to sign in.");
+    url.searchParams.set("error", "That account is the admin. Slide the switch left to Admin.");
     url.searchParams.set("portal", "admin");
     return NextResponse.redirect(url, 303);
   }
