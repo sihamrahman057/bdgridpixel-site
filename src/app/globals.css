@@ -106,6 +106,58 @@
   }
 }
 
+.login-portal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.25rem;
+  margin: 0;
+  padding: 0.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.75rem;
+  background: rgb(244 247 245 / 4%);
+}
+
+.login-portal-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.login-portal-option input {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.login-portal-option span {
+  display: flex;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--muted-foreground);
+  transition:
+    background-color 120ms ease,
+    color 120ms ease;
+}
+
+.login-portal-option:hover span {
+  color: var(--foreground);
+}
+
+.login-portal-option:has(input:checked) span,
+.login-portal-option input:focus-visible + span {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+
+.login-portal-option input:focus-visible + span {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
 .cockpit {
   position: relative;
   width: 100%;

@@ -1,10 +1,7 @@
-"use client";
-
-import { useState, type ReactNode } from "react";
+import type { ReactNode } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { cn } from "cn";
 
 export type LoginPortal = "admin" | "moderator";
 
@@ -48,57 +45,36 @@ export function LoginForm({
   error?: string;
   initialPortal?: LoginPortal;
 }) {
-  const [portal, setPortal] = useState<LoginPortal>(initialPortal);
-  const isAdmin = portal === "admin";
-
   return (
     <AuthCard
       kicker="Control room"
       title="Sign in"
-      copy={
-        isAdmin
-          ? "Admin access for the event owner. Full control of the panel."
-          : "Moderator access for invited helpers. Use the email and password the admin gave you."
-      }
+      copy="Choose Admin or Moderator, then use your email and password."
     >
       <form action="/api/admin/session" method="post" className="grid gap-4">
         <input type="hidden" name="intent" value="login" />
-        <input type="hidden" name="portal" value={portal} />
 
-        <div
-          className="grid grid-cols-2 gap-1 rounded-xl border border-border bg-muted/40 p-1"
-          role="tablist"
-          aria-label="Sign-in type"
-        >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={isAdmin}
-            className={cn(
-              "h-10 rounded-lg text-sm font-medium transition-colors",
-              isAdmin
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-            onClick={() => setPortal("admin")}
-          >
-            Admin
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={!isAdmin}
-            className={cn(
-              "h-10 rounded-lg text-sm font-medium transition-colors",
-              !isAdmin
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-            onClick={() => setPortal("moderator")}
-          >
-            Moderator
-          </button>
-        </div>
+        <fieldset className="login-portal">
+          <legend className="sr-only">Sign-in type</legend>
+          <label className="login-portal-option">
+            <input
+              type="radio"
+              name="portal"
+              value="admin"
+              defaultChecked={initialPortal === "admin"}
+            />
+            <span>Admin</span>
+          </label>
+          <label className="login-portal-option">
+            <input
+              type="radio"
+              name="portal"
+              value="moderator"
+              defaultChecked={initialPortal === "moderator"}
+            />
+            <span>Moderator</span>
+          </label>
+        </fieldset>
 
         <TextField id="login-email" name="email" label="Email" type="email" autoComplete="email" />
         <TextField
@@ -114,7 +90,7 @@ export function LoginForm({
           </p>
         ) : null}
         <Button type="submit" className="h-10">
-          {isAdmin ? "Enter as admin" : "Enter as moderator"}
+          Enter the panel
         </Button>
       </form>
     </AuthCard>
