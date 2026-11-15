@@ -32,6 +32,8 @@ export type EventSettings = {
   eventDate: string;
   eventPlace: string;
   eventStatus: string;
+  /** ISO UTC timestamp; null means no auto-close timer. Interpreted in Asia/Dhaka for admin UI. */
+  registrationClosesAt: string | null;
   bannerEyebrow: string;
   bannerTitle: string;
   bannerBody: string;

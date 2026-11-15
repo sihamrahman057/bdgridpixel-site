@@ -21,6 +21,7 @@ import {
   safeHref,
   validateAnswers,
 } from "@/lib/validation";
+import { isRegistrationOpen, parseBangladeshLocal } from "@/lib/time-bd";
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const DUMMY_HASH = `${"ab".repeat(16)}:${"00".repeat(64)}`;
@@ -32,6 +33,7 @@ type SettingsRow = {
   event_date: string;
   event_place: string;
   event_status: string;
+  registration_closes_at: Date | string | null;
   banner_eyebrow: string;
   banner_title: string;
   banner_body: string;
@@ -58,7 +60,7 @@ export function pageSize() {
 
 export async function getSettings(): Promise<EventSettings> {
   const rows = await sql<SettingsRow>(
-    `select event_name, event_date, event_place, event_status,
+    `select event_name, event_date, event_place, event_status, registration_closes_at,
             banner_eyebrow, banner_title, banner_body,
             banner_button_label, banner_button_url, banner_image_url,
             (banner_image is not null) as has_banner_image, updated_at
@@ -74,6 +76,8 @@ export async function updateHero(input: {
   eventDate: string;
   eventPlace: string;
   eventStatus: string;
+  closesAtLocal?: string;
+  clearTimer?: boolean;
 }) {
   const eventName = cleanText(input.eventName, 80);
   const eventDate = cleanText(input.eventDate, 80);
@@ -82,12 +86,37 @@ export async function updateHero(input: {
   if (!eventName || !eventDate || !eventPlace || !eventStatus) {
     return "Fill in the event name, date, place, and status.";
   }
-  await sql(
-    `update event_settings
-     set event_name = $1, event_date = $2, event_place = $3, event_status = $4, updated_at = now()
-     where id = 1`,
-    [eventName, eventDate, eventPlace, eventStatus],
-  );
+
+  let closesAt: string | null | undefined;
+  if (input.clearTimer) {
+    closesAt = null;
+  } else if (input.closesAtLocal !== undefined) {
+    const local = input.closesAtLocal.trim();
+    if (!local) {
+      closesAt = null;
+    } else {
+      const parsed = parseBangladeshLocal(local);
+      if (!parsed) return "Use a valid Bangladesh date and time for the timer.";
+      closesAt = parsed.toISOString();
+    }
+  }
+
+  if (closesAt !== undefined) {
+    await sql(
+      `update event_settings
+       set event_name = $1, event_date = $2, event_place = $3, event_status = $4,
+           registration_closes_at = $5, updated_at = now()
+       where id = 1`,
+      [eventName, eventDate, eventPlace, eventStatus, closesAt],
+    );
+  } else {
+    await sql(
+      `update event_settings
+       set event_name = $1, event_date = $2, event_place = $3, event_status = $4, updated_at = now()
+       where id = 1`,
+      [eventName, eventDate, eventPlace, eventStatus],
+    );
+  }
   return null;
 }
 
@@ -238,6 +267,14 @@ export async function registerGuest(raw: Record<string, unknown>, ip: string): P
     return {
       ok: false,
       message: "Too many registrations from this network. Wait a few minutes and try again.",
+      fieldErrors: {},
+    };
+  }
+  const settings = await getSettings();
+  if (!isRegistrationOpen(settings.registrationClosesAt, settings.eventStatus)) {
+    return {
+      ok: false,
+      message: "Registration is closed. The event timer has ended or the host turned it off.",
       fieldErrors: {},
     };
   }
@@ -458,6 +495,7 @@ function mapSettings(row: SettingsRow): EventSettings {
     eventDate: row.event_date,
     eventPlace: row.event_place,
     eventStatus: row.event_status,
+    registrationClosesAt: row.registration_closes_at ? asIso(row.registration_closes_at) : null,
     bannerEyebrow: row.banner_eyebrow,
     bannerTitle: row.banner_title,
     bannerBody: row.banner_body,

@@ -2,7 +2,7 @@
 
 A single public page for one live event, and a staff workshop behind it.
 
-Guests see a driver-cluster hero, a banner, and a registration form. The owner can change the words in the cluster, replace the banner, add or remove form fields, read the guest list, and clear it when the event is over. The owner can also give a manager or an assistant access to the workshop.
+Guests see a driver-cluster hero, a banner, and a registration form. On **Form** in the admin panel, the owner or manager creates the event guests see, chooses which fields to collect, and can set a registration close timer in Bangladesh time (Asia/Dhaka, UTC+6). When that moment passes, registration turns off automatically. The owner can also replace the banner, read the guest list, clear it when the event is over, and invite a manager or assistant.
 
 ## Roles
 

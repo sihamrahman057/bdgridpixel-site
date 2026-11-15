@@ -2,14 +2,25 @@
 
 import { useEffect, useState } from "react";
 import type { EventSettings } from "@/lib/types";
+import { isRegistrationOpen } from "@/lib/time-bd";
 
 const TARGET_SPEED = 248;
 const BOOT_MS = 1800;
 
 export function Cockpit({ settings }: { settings: EventSettings }) {
-  const open = settings.eventStatus.toLowerCase().includes("open");
+  const [open, setOpen] = useState(() =>
+    isRegistrationOpen(settings.registrationClosesAt, settings.eventStatus),
+  );
   const [speed, setSpeed] = useState(0);
   const [booting, setBooting] = useState(true);
+
+  useEffect(() => {
+    const tick = () =>
+      setOpen(isRegistrationOpen(settings.registrationClosesAt, settings.eventStatus));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [settings.registrationClosesAt, settings.eventStatus]);
 
   useEffect(() => {
     let frame = 0;
@@ -71,7 +82,7 @@ export function Cockpit({ settings }: { settings: EventSettings }) {
             <h1 className="event-name">{settings.eventName}</h1>
             <p className="event-status">
               <span className="lamp" data-on={open ? "true" : "false"} aria-hidden />
-              {settings.eventStatus}
+              {open ? settings.eventStatus : "Registration closed"}
             </p>
 
             <div className="speed-block" aria-live="polite">

@@ -1,27 +1,38 @@
 "use client";
 
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { registerAction } from "@/lib/actions";
 import type { FormField, RegisterResult } from "@/lib/types";
+import { isRegistrationOpen } from "@/lib/time-bd";
+import { RegistrationCountdown } from "@/components/registration-countdown";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export function RegisterForm({ fields }: { fields: FormField[] }) {
+export function RegisterForm({
+  fields,
+  closesAt,
+  statusText,
+}: {
+  fields: FormField[];
+  closesAt: string | null;
+  statusText: string;
+}) {
   const [formKey, setFormKey] = useState(0);
-  return <RegisterFields key={formKey} fields={fields} onReset={() => setFormKey((key) => key + 1)} />;
-}
+  const [open, setOpen] = useState(() => isRegistrationOpen(closesAt, statusText));
 
-const emptyRegisterState: RegisterResult = { ok: false, message: "", fieldErrors: {} };
-
-function RegisterFields({ fields, onReset }: { fields: FormField[]; onReset: () => void }) {
-  const [state, action, pending] = useActionState(registerAction, emptyRegisterState);
+  useEffect(() => {
+    const tick = () => setOpen(isRegistrationOpen(closesAt, statusText));
+    tick();
+    const id = window.setInterval(tick, 1000);
+    return () => window.clearInterval(id);
+  }, [closesAt, statusText]);
 
   if (fields.length === 0) {
     return (
       <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
-        <div className="console rounded-3xl border border-border p-6 text-center">
+        <div className="console rounded-3xl p-6 text-center">
           <h2 className="font-display text-3xl">Registration is closed</h2>
           <p className="mt-2 text-muted-foreground">The host has not published a form yet.</p>
         </div>
@@ -29,10 +40,45 @@ function RegisterFields({ fields, onReset }: { fields: FormField[]; onReset: () 
     );
   }
 
+  if (!open) {
+    return (
+      <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
+        <div className="console rounded-3xl p-6 text-center md:p-8" role="status">
+          <p className="font-mono text-xs tracking-[0.2em] text-destructive uppercase">Closed</p>
+          <h2 className="mt-2 font-display text-4xl">Registration is off</h2>
+          <p className="mt-3 text-muted-foreground">
+            The event timer ended or the host turned registration off. New entries are not accepted.
+          </p>
+          {closesAt ? (
+            <div className="mx-auto mt-5 max-w-sm text-left">
+              <RegistrationCountdown closesAt={closesAt} />
+            </div>
+          ) : null}
+        </div>
+      </section>
+    );
+  }
+
+  return <RegisterFields key={formKey} fields={fields} closesAt={closesAt} onReset={() => setFormKey((key) => key + 1)} />;
+}
+
+const emptyRegisterState: RegisterResult = { ok: false, message: "", fieldErrors: {} };
+
+function RegisterFields({
+  fields,
+  closesAt,
+  onReset,
+}: {
+  fields: FormField[];
+  closesAt: string | null;
+  onReset: () => void;
+}) {
+  const [state, action, pending] = useActionState(registerAction, emptyRegisterState);
+
   if (state.ok) {
     return (
       <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
-        <div className="console rounded-3xl border border-border p-6 text-center md:p-8" role="status">
+        <div className="console rounded-3xl p-6 text-center md:p-8" role="status">
           <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">Saved</p>
           <h2 className="mt-2 font-display text-4xl">You&apos;re on the list</h2>
           <p className="mt-3 text-muted-foreground">
@@ -48,10 +94,13 @@ function RegisterFields({ fields, onReset }: { fields: FormField[]; onReset: () 
 
   return (
     <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
-      <form action={action} className="console rounded-3xl border border-border p-6 md:p-8" noValidate>
-        <div className="mb-6">
-          <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">Guest console</p>
-          <h2 className="mt-2 font-display text-4xl leading-none">Tell the host you&apos;re coming</h2>
+      <form action={action} className="console rounded-3xl p-6 md:p-8" noValidate>
+        <div className="mb-6 grid gap-3">
+          <div>
+            <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">Guest console</p>
+            <h2 className="mt-2 font-display text-4xl leading-none">Tell the host you&apos;re coming</h2>
+          </div>
+          {closesAt ? <RegistrationCountdown closesAt={closesAt} /> : null}
         </div>
         <div className="grid gap-4">
           {fields.map((field) => (
@@ -78,7 +127,7 @@ function FieldControl({ field, error }: { field: FormField; error?: string }) {
   return (
     <div className="grid gap-1.5">
       <Label htmlFor={id}>
-        {field.label}
+        <span>{field.label}</span>{" "}
         {field.required ? <span className="text-primary">Required</span> : <span className="text-muted-foreground">Optional</span>}
       </Label>
       {field.fieldType === "textarea" ? (

@@ -67,10 +67,12 @@ export async function updateHeroAction(_prev: FormState, formData: FormData): Pr
     eventDate: String(formData.get("eventDate") ?? ""),
     eventPlace: String(formData.get("eventPlace") ?? ""),
     eventStatus: String(formData.get("eventStatus") ?? ""),
+    closesAtLocal: String(formData.get("closesAtLocal") ?? ""),
+    clearTimer: formData.get("clearTimer") === "yes",
   });
   if (error) return { error };
   refresh();
-  return { ok: "The cockpit readouts are updated." };
+  return { ok: "The event and timer are saved." };
 }
 
 export async function updateBannerAction(_prev: FormState, formData: FormData): Promise<FormState> {

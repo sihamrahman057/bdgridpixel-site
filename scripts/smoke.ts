@@ -18,6 +18,7 @@ import {
 } from "../src/lib/event-store";
 import { resetRateLimit, takeToken } from "../src/lib/rate-limit";
 import { canClearRegistrations, canDeleteRegistration, canEditContent } from "../src/lib/types";
+import { isRegistrationOpen, parseBangladeshLocal, toBangladeshLocalInput } from "../src/lib/time-bd";
 import { safeHref } from "../src/lib/validation";
 
 const png = Uint8Array.from(
@@ -78,6 +79,40 @@ async function main() {
   const phone = fields.find((field) => field.id === "fld_phone");
   const email = fields.find((field) => field.id === "fld_email");
   assert.ok(name && phone && email);
+
+  const pastLocal = toBangladeshLocalInput(new Date(Date.now() - 60_000));
+  assert.equal(await updateHero({
+    eventName: "After Dark",
+    eventDate: "Saturday",
+    eventPlace: "The Conservatory",
+    eventStatus: "Registration open",
+    closesAtLocal: pastLocal,
+  }), null);
+  const closedSettings = await getSettings();
+  assert.ok(closedSettings.registrationClosesAt);
+  assert.equal(isRegistrationOpen(closedSettings.registrationClosesAt, closedSettings.eventStatus), false);
+  assert.equal(
+    (await registerGuest({ [name.id]: "Too Late", [phone.id]: "01700000001", [email.id]: "late@gmail.com" }, "late")).ok,
+    false,
+  );
+
+  const future = parseBangladeshLocal(toBangladeshLocalInput(new Date(Date.now() + 3_600_000)));
+  assert.ok(future);
+  assert.equal(await updateHero({
+    eventName: "After Dark",
+    eventDate: "Saturday",
+    eventPlace: "The Conservatory",
+    eventStatus: "Registration open",
+    closesAtLocal: toBangladeshLocalInput(future),
+  }), null);
+  assert.equal(isRegistrationOpen((await getSettings()).registrationClosesAt, "Registration open"), true);
+  assert.equal(await updateHero({
+    eventName: "After Dark",
+    eventDate: "Saturday",
+    eventPlace: "The Conservatory",
+    eventStatus: "Registration open",
+    clearTimer: true,
+  }), null);
 
   const invalid = await registerGuest({
     [name.id]: "",
