@@ -109,9 +109,9 @@
 .login-switches {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
+  gap: 2rem;
   margin: 0;
-  padding: 0;
+  padding: 0.15rem 0;
   border: 0;
 }
 
