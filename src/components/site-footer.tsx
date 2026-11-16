@@ -12,7 +12,6 @@ export function SiteFooter({ settings }: { settings: EventSettings }) {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <p className="site-credit">Owned by Bdgridpixel</p>
         {links.length > 0 ? (
           <ul className="site-socials" aria-label="Social links">
             {links.map(({ href, label, Icon }) => (
@@ -24,6 +23,7 @@ export function SiteFooter({ settings }: { settings: EventSettings }) {
             ))}
           </ul>
         ) : null}
+        <p className="site-credit">Owned by BDGridPixel</p>
       </div>
     </footer>
   );

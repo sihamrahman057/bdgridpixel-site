@@ -95,11 +95,23 @@
   }
   body {
     @apply bg-background text-foreground;
-    background-image:
-      radial-gradient(900px 420px at 18% -8%, rgb(46 168 95 / 16%), transparent 58%),
-      radial-gradient(700px 360px at 86% 0%, rgb(198 40 40 / 10%), transparent 52%),
-      linear-gradient(180deg, #101513 0%, #0a0d0c 42%, #070908 100%);
+    background-color: #070908;
     min-height: 100%;
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: -20vh -10vw;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(70% 55% at 0% 0%, rgb(46 168 95 / 26%), rgb(46 168 95 / 12%) 28%, rgb(46 168 95 / 5%) 52%, rgb(46 168 95 / 0) 78%),
+      radial-gradient(62% 50% at 100% 0%, rgb(229 57 53 / 22%), rgb(229 57 53 / 10%) 32%, rgb(229 57 53 / 4%) 56%, rgb(229 57 53 / 0) 82%),
+      radial-gradient(50% 40% at 78% 42%, rgb(46 168 95 / 7%), rgb(46 168 95 / 0) 70%);
+  }
+  body > * {
+    position: relative;
+    z-index: 1;
   }
   html {
     @apply font-sans;
@@ -428,6 +440,8 @@
 }
 
 .site-shell {
+  position: relative;
+  z-index: 1;
   display: flex;
   min-height: 100%;
   flex-direction: column;
@@ -445,8 +459,8 @@
   z-index: 2;
   flex: 0 0 auto;
   margin-top: 1.5rem;
-  border-top: 1px solid rgb(244 247 245 / 10%);
-  background: rgb(7 9 8 / 92%);
+  border-top: 0;
+  background: transparent;
 }
 
 .site-footer-inner {
@@ -578,18 +592,10 @@
   position: relative;
   width: 100%;
   padding: 0;
-  overflow: clip;
 }
 
 .cockpit::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(ellipse 55% 45% at 50% 8%, rgb(46 168 95 / 16%), transparent 68%),
-    radial-gradient(ellipse 40% 35% at 8% 60%, rgb(229 57 53 / 10%), transparent 70%),
-    linear-gradient(180deg, rgb(0 0 0 / 35%), transparent 40%);
-  pointer-events: none;
+  content: none;
 }
 
 .cockpit-hud {
