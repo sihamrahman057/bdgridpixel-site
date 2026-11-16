@@ -317,9 +317,9 @@
 
 .site-logo {
   display: block;
-  height: clamp(2.4rem, 7vw, 3.6rem);
+  height: clamp(2.15rem, 6.4vw, 3.15rem);
   width: auto;
-  max-width: min(34vw, 9rem);
+  max-width: min(54vw, 18rem);
   object-fit: contain;
   object-position: center;
 }
