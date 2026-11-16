@@ -234,14 +234,30 @@
 }
 
 .site-top-bar-inner {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
   width: 100%;
-  max-width: 72rem;
-  margin: 0 auto;
   align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 0.7rem 1rem;
+  gap: 0.5rem;
+  padding: 0.55rem clamp(0.65rem, 2vw, 1.25rem);
+}
+
+.site-top-slot {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+}
+
+.site-top-slot-start {
+  justify-content: flex-start;
+}
+
+.site-top-slot-center {
+  justify-content: center;
+}
+
+.site-top-slot-end {
+  justify-content: flex-end;
 }
 
 .bd-flag {
@@ -301,10 +317,11 @@
 
 .site-logo {
   display: block;
-  height: 2.25rem;
+  height: clamp(2.4rem, 7vw, 3.6rem);
   width: auto;
-  max-width: min(48vw, 220px);
+  max-width: min(34vw, 9rem);
   object-fit: contain;
+  object-position: center;
 }
 
 .site-logo-fallback {

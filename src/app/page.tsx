@@ -23,7 +23,7 @@ async function HomeContent() {
   ]);
   return (
     <div className="site-shell">
-      <SiteTopBar notifications={notifications} />
+      <SiteTopBar settings={settings} notifications={notifications} />
       <main className="site-main">
         <Cockpit settings={settings} />
         <EventBanner settings={settings} />
