@@ -19,4 +19,4 @@ npm run dev
 
 Open the public page at [http://localhost:4317](http://localhost:4317). Open [http://localhost:4317/admin](http://localhost:4317/admin) to create the owner account.
 
-Local data is stored in memory and starts over when the dev server restarts. When the app is published, it uses its own Postgres database. Set `SESSION_SECRET` in production so session tokens are hashed with a private value. Without it, the app still runs with a local fallback.
+Local data is stored in memory and starts over when the dev server restarts. When the app is published, it uses its own Postgres database. Production requires `SESSION_SECRET` (session hashing) and `ADMIN_SETUP_SECRET` (first admin account creation), both set as app secrets.

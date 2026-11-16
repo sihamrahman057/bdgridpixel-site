@@ -2,18 +2,15 @@ import "server-only";
 import { createHash, randomBytes } from "node:crypto";
 import { cookies } from "next/headers";
 import { sql } from "@/lib/db";
+import { sessionPepper } from "@/lib/session-secret";
 import type { Role, Staff } from "@/lib/types";
 import { isRole } from "@/lib/types";
 
 const COOKIE = "er_session";
 const SESSION_MS = 14 * 24 * 60 * 60 * 1000;
 
-function pepper() {
-  return process.env.SESSION_SECRET?.trim() || "dev-only-session-pepper";
-}
-
 function hashToken(token: string) {
-  return createHash("sha256").update(pepper()).update(token).digest("hex");
+  return createHash("sha256").update(sessionPepper()).update(token).digest("hex");
 }
 
 export async function getCurrentStaff(): Promise<Staff | null> {

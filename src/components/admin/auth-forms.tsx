@@ -2,7 +2,13 @@ import type { ReactNode } from "react";
 
 export type LoginPortal = "admin" | "moderator";
 
-export function SetupForm({ error }: { error?: string }) {
+export function SetupForm({
+  error,
+  requireSetupSecret = false,
+}: {
+  error?: string;
+  requireSetupSecret?: boolean;
+}) {
   return (
     <AuthCard
       kicker="First visit"
@@ -22,6 +28,16 @@ export function SetupForm({ error }: { error?: string }) {
           autoComplete="new-password"
           hint="At least 8 characters."
         />
+        {requireSetupSecret ? (
+          <Field
+            id="setup-secret"
+            name="setupSecret"
+            label="Setup secret"
+            type="password"
+            autoComplete="off"
+            hint="The ADMIN_SETUP_SECRET value you set for this published app."
+          />
+        ) : null}
         {error ? (
           <p className="text-sm text-destructive" role="alert">
             {error}

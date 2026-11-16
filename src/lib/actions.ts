@@ -3,14 +3,13 @@
 import { headers } from "next/headers";
 import { refresh } from "next/cache";
 import { redirect } from "next/navigation";
-import { closeSession, denyUnless, openSession } from "@/lib/auth";
+import { closeSession, denyUnless } from "@/lib/auth";
 import {
   clearBannerImage,
   clearRegistrations,
   clearSiteLogo,
   createField,
   createNotification,
-  createOwner,
   createStaff,
   deleteField,
   deleteNotification,
@@ -24,7 +23,6 @@ import {
   updateField,
   updateHero,
   updateSocialLinks,
-  verifyLogin,
 } from "@/lib/event-store";
 import { clientIp } from "@/lib/rate-limit";
 import type { FormState, RegisterResult } from "@/lib/types";
@@ -39,25 +37,6 @@ export async function registerAction(_prev: RegisterResult, formData: FormData):
   return registerGuest(raw, clientIp(headerList));
 }
 
-export async function setupAction(_prev: FormState, formData: FormData): Promise<FormState> {
-  const error = await createOwner(
-    String(formData.get("name") ?? ""),
-    String(formData.get("email") ?? ""),
-    String(formData.get("password") ?? ""),
-  );
-  if (error) return { error };
-  const staff = await verifyLogin(String(formData.get("email") ?? ""), String(formData.get("password") ?? ""));
-  if (!staff) return { error: "The owner account was created, but sign-in failed. Try signing in." };
-  await openSession(staff.id);
-  redirect("/admin/registrations");
-}
-
-export async function loginAction(_prev: FormState, formData: FormData): Promise<FormState> {
-  const staff = await verifyLogin(String(formData.get("email") ?? ""), String(formData.get("password") ?? ""));
-  if (!staff) return { error: "That email and password do not match a staff account." };
-  await openSession(staff.id);
-  redirect("/admin/registrations");
-}
 
 export async function logoutAction() {
   await closeSession();

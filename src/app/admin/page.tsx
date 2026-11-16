@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { LoginForm, SetupForm, type LoginPortal } from "@/components/admin/auth-forms";
 import { getCurrentStaff } from "@/lib/auth";
 import { countOwners } from "@/lib/event-store";
+import { setupSecretRequired } from "@/lib/session-secret";
 
 export const metadata = { title: "Sign in" };
 
@@ -29,7 +30,9 @@ async function AdminGate({
     countOwners(),
   ]);
   if (staff) redirect("/admin/registrations");
-  if (owners === 0) return <SetupForm error={error} />;
+  if (owners === 0) {
+    return <SetupForm error={error} requireSetupSecret={setupSecretRequired()} />;
+  }
   const initialPortal: LoginPortal = portal === "moderator" ? "moderator" : "admin";
   return <LoginForm error={error} initialPortal={initialPortal} />;
 }
