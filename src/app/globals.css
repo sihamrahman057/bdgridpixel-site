@@ -266,10 +266,12 @@
 
 .bd-flag-svg {
   display: block;
-  width: 3.4rem;
-  height: 2.05rem;
+  width: calc(3.4rem * 0.95);
+  height: calc(2.05rem * 0.95);
   border-radius: 3px;
-  box-shadow: 0 0 0 1px rgb(244 247 245 / 18%);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 20%),
+    0 6px 10px rgb(0 0 0 / 35%);
 }
 
 .bd-flag-note {
