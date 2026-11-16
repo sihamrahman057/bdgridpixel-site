@@ -322,8 +322,26 @@
   box-shadow: 0 18px 40px rgb(0 0 0 / 45%);
 }
 
+.site-shell {
+  display: flex;
+  min-height: 100%;
+  flex-direction: column;
+}
+
+.site-main {
+  position: relative;
+  z-index: 1;
+  flex: 1 0 auto;
+  width: 100%;
+}
+
 .site-footer {
+  position: relative;
+  z-index: 2;
+  flex: 0 0 auto;
+  margin-top: 1.5rem;
   border-top: 1px solid rgb(244 247 245 / 10%);
+  background: rgb(7 9 8 / 92%);
 }
 
 .site-footer-inner {
@@ -333,16 +351,76 @@
   margin: 0 auto;
   flex-direction: column;
   gap: 1rem;
-  padding: 2.5rem 1rem;
+  padding: 2rem 1rem 2.75rem;
   font-size: 0.875rem;
   color: var(--muted-foreground);
 }
 
-.site-footer-actions {
-  display: flex;
-  flex-wrap: wrap;
+.register-guide {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: 0 1rem 2.5rem;
+}
+
+.register-guide-inner {
+  width: 100%;
+  max-width: 36rem;
+  margin: 0 auto;
+  padding: 1.35rem 1.25rem 1.5rem;
+  border: 1px solid rgb(244 247 245 / 12%);
+  border-radius: 1.25rem;
+  background: rgb(18 24 22 / 88%);
+}
+
+.register-guide-list {
+  display: grid;
+  gap: 0.95rem;
+  margin: 1.15rem 0 0;
+  padding: 0;
+  list-style: none;
+  counter-reset: guide;
+}
+
+.register-guide-list li {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.75rem 0.9rem;
+  align-items: start;
+}
+
+.register-guide-list li::before {
+  counter-increment: guide;
+  content: counter(guide);
+  display: inline-flex;
+  width: 1.7rem;
+  height: 1.7rem;
   align-items: center;
-  gap: 1rem;
+  justify-content: center;
+  border-radius: 999px;
+  background: rgb(46 168 95 / 18%);
+  color: var(--signal-green);
+  font-family: var(--font-geist-mono), ui-monospace, monospace;
+  font-size: 0.72rem;
+  grid-row: 1 / span 2;
+}
+
+.register-guide-list strong {
+  font-size: 0.95rem;
+  color: #f4f7f5;
+}
+
+.register-guide-list span {
+  grid-column: 2;
+  font-size: 0.875rem;
+  line-height: 1.45;
+  color: var(--muted-foreground);
+}
+
+#register {
+  position: relative;
+  z-index: 1;
+  padding-bottom: 1.25rem;
 }
 
 .site-socials {

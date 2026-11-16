@@ -31,7 +31,7 @@ export function RegisterForm({
 
   if (fields.length === 0) {
     return (
-      <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
+      <section id="register" className="mx-auto w-full max-w-xl px-4 pt-10 pb-4">
         <div className="console rounded-3xl p-6 text-center">
           <h2 className="font-display text-3xl">Registration is closed</h2>
           <p className="mt-2 text-muted-foreground">The host has not published a form yet.</p>
@@ -42,7 +42,7 @@ export function RegisterForm({
 
   if (!open) {
     return (
-      <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
+      <section id="register" className="mx-auto w-full max-w-xl px-4 pt-10 pb-4">
         <div className="console rounded-3xl p-6 text-center md:p-8" role="status">
           <p className="font-mono text-xs tracking-[0.2em] text-destructive uppercase">Closed</p>
           <h2 className="mt-2 font-display text-4xl">Registration is off</h2>
@@ -77,7 +77,7 @@ function RegisterFields({
 
   if (state.ok) {
     return (
-      <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
+      <section id="register" className="mx-auto w-full max-w-xl px-4 pt-10 pb-4">
         <div className="console rounded-3xl p-6 text-center md:p-8" role="status">
           <p className="font-mono text-xs tracking-[0.2em] text-primary uppercase">Saved</p>
           <h2 className="mt-2 font-display text-4xl">You&apos;re on the list</h2>
@@ -93,7 +93,7 @@ function RegisterFields({
   }
 
   return (
-    <section id="register" className="mx-auto w-full max-w-xl px-4 py-10">
+    <section id="register" className="mx-auto w-full max-w-xl px-4 pt-10 pb-4">
       <form action={action} className="console rounded-3xl p-6 md:p-8" noValidate>
         <div className="mb-6 grid gap-3">
           <div>
