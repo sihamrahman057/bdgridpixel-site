@@ -28,16 +28,35 @@ export function toBangladeshLocalInput(value: Date | string | null | undefined):
   return `${get("year")}-${get("month")}-${get("day")}T${get("hour")}:${get("minute")}`;
 }
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"] as const;
+
+function bangladeshParts(date: Date) {
+  const parts = new Intl.DateTimeFormat("en-GB", {
+    timeZone: BD_TIME_ZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).formatToParts(date);
+  const get = (type: string) => parts.find((part) => part.type === type)?.value ?? "";
+  return {
+    year: get("year"),
+    month: Number(get("month")),
+    day: Number(get("day")),
+    hour: get("hour") === "24" ? "00" : get("hour"),
+    minute: get("minute"),
+  };
+}
+
 export function formatBangladeshStamp(value: Date | string | null | undefined): string {
   if (!value) return "";
   const date = value instanceof Date ? value : new Date(value);
   if (Number.isNaN(date.getTime())) return "";
-  return new Intl.DateTimeFormat("en-GB", {
-    timeZone: BD_TIME_ZONE,
-    dateStyle: "medium",
-    timeStyle: "short",
-    hourCycle: "h23",
-  }).format(date) + " BST";
+  const { year, month, day, hour, minute } = bangladeshParts(date);
+  const monthName = MONTHS[month - 1] ?? String(month);
+  return `${day} ${monthName} ${year}, ${hour}:${minute} BST`;
 }
 
 export function isRegistrationOpen(closesAt: string | null, statusText: string, now = new Date()) {

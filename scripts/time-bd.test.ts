@@ -11,7 +11,7 @@ const noonBd = parseBangladeshLocal("2026-11-15T12:00");
 assert.ok(noonBd);
 assert.equal(noonBd.toISOString(), "2026-11-15T06:00:00.000Z");
 assert.equal(toBangladeshLocalInput(noonBd), "2026-11-15T12:00");
-assert.match(formatBangladeshStamp(noonBd), /BST$/);
+assert.equal(formatBangladeshStamp(noonBd), "15 Nov 2026, 12:00 BST");
 
 assert.equal(isRegistrationOpen(null, "Registration open"), true);
 assert.equal(isRegistrationOpen(null, "Closed"), false);
