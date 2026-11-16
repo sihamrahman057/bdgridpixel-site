@@ -13,10 +13,12 @@ function hashToken(token: string) {
 }
 
 function adminUrl(request: Request, path: string) {
-  const host = request.headers.get("x-forwarded-host") || request.headers.get("host");
-  const proto = request.headers.get("x-forwarded-proto") || "http";
-  if (host) return new URL(path, `${proto}://${host}`);
-  return new URL(path, request.url.replace("://0.0.0.0", "://127.0.0.1"));
+  const url = new URL(request.url);
+  const host = request.headers.get("host")?.trim() ?? "";
+  if (/^[A-Za-z0-9.\-:[\]]+$/.test(host)) url.host = host;
+  url.pathname = path;
+  url.search = "";
+  return url;
 }
 
 function attachSession(response: NextResponse, token: string) {

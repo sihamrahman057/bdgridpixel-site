@@ -577,11 +577,12 @@ function parseFieldInput(input: FieldInput) {
 function parseAccount(name: string, email: string, password: string) {
   const cleanName = cleanText(name, 80);
   const cleanEmail = email.trim().toLowerCase();
+  const cleanPassword = password.trim();
   if (!cleanName) return { error: "Enter a name." };
   if (!EMAIL.test(cleanEmail) || cleanEmail.length > 200) return { error: "Enter a valid email address." };
-  if (password.length < 8) return { error: "Use a password of at least 8 characters." };
-  if (password.length > 200) return { error: "Use a password of 200 characters or fewer." };
-  return { error: null, value: { name: cleanName, email: cleanEmail, password } };
+  if (cleanPassword.length < 8) return { error: "Use a password of at least 8 characters." };
+  if (cleanPassword.length > 200) return { error: "Use a password of 200 characters or fewer." };
+  return { error: null, value: { name: cleanName, email: cleanEmail, password: cleanPassword } };
 }
 
 function mapSettings(row: SettingsRow): EventSettings {
