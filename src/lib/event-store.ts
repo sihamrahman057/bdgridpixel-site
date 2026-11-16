@@ -471,12 +471,13 @@ export async function createOwner(name: string, email: string, password: string)
 
 export async function verifyLogin(email: string, password: string): Promise<Staff | null> {
   const normalized = email.trim().toLowerCase();
+  const secret = password.trim();
   const rows = await sql<{ id: string; name: string; email: string; role: string; password_hash: string }>(
-    `select id, name, email, role, password_hash from staff where email = $1`,
+    `select id, name, email, role, password_hash from staff where lower(email) = $1`,
     [normalized],
   );
   const row = rows[0];
-  const match = await verifyPassword(password, row?.password_hash ?? DUMMY_HASH);
+  const match = await verifyPassword(secret, row?.password_hash ?? DUMMY_HASH);
   if (!row || !match || !isRole(row.role)) return null;
   return { id: row.id, name: row.name, email: row.email, role: row.role };
 }

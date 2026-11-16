@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { createHash, randomBytes } from "node:crypto";
 import { sql } from "@/lib/db";
 import { createOwner, countOwners, verifyLogin } from "@/lib/event-store";
-import { clientIp, takeToken } from "@/lib/rate-limit";
+import { clientIp, isLimited, takeToken } from "@/lib/rate-limit";
 import { requireSetupSecret, sessionPepper } from "@/lib/session-secret";
 
 const COOKIE = "er_session";
@@ -62,7 +62,8 @@ export async function POST(request: Request) {
     return response;
   }
 
-  if (!takeToken(`staff-auth:${ip}`, 20, 15 * 60 * 1000)) {
+  const limitKey = `staff-auth:${ip}`;
+  if (isLimited(limitKey, 12, 15 * 60 * 1000)) {
     return redirectError(request, "Too many sign-in attempts. Wait a few minutes and try again.");
   }
 
@@ -91,13 +92,21 @@ export async function POST(request: Request) {
 
   const portalRaw = form.get("portal");
   const portal = portalRaw === "moderator" ? "moderator" : "admin";
-  const email = String(form.get("email") ?? "");
+  const email = String(form.get("email") ?? "").trim();
   const password = String(form.get("password") ?? "");
-  const staff = await verifyLogin(email, password);
+  let staff: Awaited<ReturnType<typeof verifyLogin>>;
+  try {
+    staff = await verifyLogin(email, password);
+  } catch {
+    return redirectError(request, "Sign-in could not reach the account list. Try again in a moment.", portal);
+  }
   if (!staff) {
+    takeToken(limitKey, 12, 15 * 60 * 1000);
     return redirectError(
       request,
-      "That email and password do not match an account. Use the exact admin email you created, with the switch on Admin (left).",
+      portal === "admin"
+        ? "That email and password do not match the admin account. Leave the switch on Admin (left)."
+        : "That email and password do not match a moderator account. Slide the switch right only for a moderator.",
       portal,
     );
   }

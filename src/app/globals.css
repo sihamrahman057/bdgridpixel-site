@@ -137,6 +137,9 @@
 .portal-toggle-switch {
   position: relative;
   display: inline-flex;
+  padding: 0;
+  border: 0;
+  background: transparent;
   cursor: pointer;
 }
 
@@ -170,15 +173,18 @@
   transition: transform 140ms ease;
 }
 
-.portal-toggle-switch:has(input:checked) .portal-toggle-track {
+.portal-toggle-switch:has(input:checked) .portal-toggle-track,
+.portal-toggle-switch[data-checked="true"] .portal-toggle-track {
   background: var(--primary);
 }
 
-.portal-toggle-switch:has(input:checked) .portal-toggle-thumb {
+.portal-toggle-switch:has(input:checked) .portal-toggle-thumb,
+.portal-toggle-switch[data-checked="true"] .portal-toggle-thumb {
   transform: translateX(1.55rem);
 }
 
-.portal-toggle-switch:has(input:focus-visible) .portal-toggle-track {
+.portal-toggle-switch:has(input:focus-visible) .portal-toggle-track,
+.portal-toggle-switch:focus-visible .portal-toggle-track {
   outline: 2px solid var(--ring);
   outline-offset: 2px;
 }
@@ -266,12 +272,10 @@
 
 .bd-flag-svg {
   display: block;
-  width: calc(3.4rem * 0.95);
-  height: calc(2.05rem * 0.95);
-  border-radius: 3px;
-  box-shadow:
-    0 1px 0 rgb(255 255 255 / 20%),
-    0 6px 10px rgb(0 0 0 / 35%);
+  width: calc(3.4rem * 0.855);
+  height: calc(2.05rem * 0.855);
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgb(244 247 245 / 16%);
 }
 
 .bd-flag-note {
@@ -358,6 +362,37 @@
   border-radius: 999px;
   background: var(--signal-red);
   box-shadow: 0 0 8px rgb(229 57 53 / 70%);
+}
+
+.notice-open {
+  display: grid;
+  gap: 0.2rem;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.notice-read,
+.notice-read-state {
+  justify-self: start;
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+}
+
+.notice-read {
+  border: 0;
+  border-radius: 999px;
+  background: rgb(46 168 95 / 18%);
+  color: var(--signal-green);
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+}
+
+.notice-read-state {
+  color: #9aaba1;
 }
 
 .site-notify-panel {

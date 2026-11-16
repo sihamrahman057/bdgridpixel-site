@@ -1,13 +1,20 @@
 const hits = new Map<string, number[]>();
 
-export function takeToken(key: string, limit: number, windowMs: number) {
+function recentHits(key: string, windowMs: number) {
   const now = Date.now();
   const recent = (hits.get(key) ?? []).filter((stamp) => now - stamp < windowMs);
-  if (recent.length >= limit) {
-    hits.set(key, recent);
-    return false;
-  }
-  recent.push(now);
+  hits.set(key, recent);
+  return recent;
+}
+
+export function isLimited(key: string, limit: number, windowMs: number) {
+  return recentHits(key, windowMs).length >= limit;
+}
+
+export function takeToken(key: string, limit: number, windowMs: number) {
+  const recent = recentHits(key, windowMs);
+  if (recent.length >= limit) return false;
+  recent.push(Date.now());
   hits.set(key, recent);
   return true;
 }

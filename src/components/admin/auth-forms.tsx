@@ -1,4 +1,6 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useState, type ReactNode } from "react";
 
 export type LoginPortal = "admin" | "moderator";
 
@@ -58,32 +60,42 @@ export function LoginForm({
   error?: string;
   initialPortal?: LoginPortal;
 }) {
+  const [portal, setPortal] = useState<LoginPortal>(initialPortal);
+  const [pending, setPending] = useState(false);
+  const moderator = portal === "moderator";
+
   return (
     <AuthCard
       kicker="Control room"
       title="Sign in"
-      copy="Leave the switch on Admin for the owner account. Slide it right for Moderator."
+      copy="Leave the switch on Admin for the owner account. Slide it right only when you are signing in as a moderator."
     >
-      <form action="/api/admin/session" method="post" className="grid gap-5">
+      <form
+        action="/api/admin/session"
+        method="post"
+        className="grid gap-5"
+        onSubmit={() => setPending(true)}
+      >
         <input type="hidden" name="intent" value="login" />
+        <input type="hidden" name="portal" value={portal} />
 
         <div className="portal-toggle" role="group" aria-label="Sign-in type">
-          <span className="portal-toggle-side" data-active={initialPortal === "admin" ? "true" : "false"}>
+          <span className="portal-toggle-side" data-active={moderator ? "false" : "true"}>
             Admin
           </span>
-          <label className="portal-toggle-switch">
-            <input
-              type="checkbox"
-              name="portal"
-              value="moderator"
-              defaultChecked={initialPortal === "moderator"}
-              aria-label="Moderator mode"
-            />
+          <button
+            type="button"
+            className="portal-toggle-switch"
+            data-checked={moderator ? "true" : "false"}
+            aria-pressed={moderator}
+            aria-label={moderator ? "Moderator mode, switch to Admin" : "Admin mode, switch to Moderator"}
+            onClick={() => setPortal(moderator ? "admin" : "moderator")}
+          >
             <span className="portal-toggle-track" aria-hidden>
               <span className="portal-toggle-thumb" />
             </span>
-          </label>
-          <span className="portal-toggle-side" data-active={initialPortal === "moderator" ? "true" : "false"}>
+          </button>
+          <span className="portal-toggle-side" data-active={moderator ? "true" : "false"}>
             Moderator
           </span>
         </div>
@@ -101,8 +113,8 @@ export function LoginForm({
             {error}
           </p>
         ) : null}
-        <button type="submit" className="login-submit">
-          Enter the panel
+        <button type="submit" className="login-submit" disabled={pending}>
+          {pending ? "Signing in…" : "Enter the panel"}
         </button>
       </form>
     </AuthCard>
