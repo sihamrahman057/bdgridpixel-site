@@ -179,16 +179,20 @@ function RaceDial({
     );
   });
 
-  const end = -120 + progress * 240;
+  const sweep = Math.min(1, Math.max(0, progress));
+  const end = -120 + sweep * 240;
   const startRad = (-120 * Math.PI) / 180;
   const endRad = (end * Math.PI) / 180;
-  const large = progress > 0.5 ? 1 : 0;
-  const arcPath = [
-    `M ${100 + Math.cos(startRad) * 80} ${100 + Math.sin(startRad) * 80}`,
-    `A 80 80 0 ${large} 1 ${100 + Math.cos(endRad) * 80} ${100 + Math.sin(endRad) * 80}`,
-  ].join(" ");
+  const large = sweep > 0.5 ? 1 : 0;
+  const arcPath =
+    sweep < 0.004
+      ? ""
+      : [
+          `M ${100 + Math.cos(startRad) * 80} ${100 + Math.sin(startRad) * 80}`,
+          `A 80 80 0 ${large} 1 ${100 + Math.cos(endRad) * 80} ${100 + Math.sin(endRad) * 80}`,
+        ].join(" ");
 
-  const fillId = `faceFill-${tone}`;
+  const fillId = `faceFill-${label}`;
 
   return (
     <div className="dial race-dial" data-tone={tone} style={{ ["--needle-angle" as string]: `${needleAngle}deg` }}>
@@ -203,7 +207,7 @@ function RaceDial({
         <circle className="dial-face" cx="100" cy="100" r="90" fill={`url(#${fillId})`} />
         <circle className="dial-ring" cx="100" cy="100" r="88" />
         <g className="dial-ticks">{ticks}</g>
-        <path className="dial-arc" d={arcPath} />
+        {arcPath ? <path className="dial-arc" d={arcPath} /> : null}
         <line className="dial-needle race-needle" x1="100" y1="100" x2="100" y2="28" />
         <circle className="dial-hub" cx="100" cy="100" r="6" />
       </svg>

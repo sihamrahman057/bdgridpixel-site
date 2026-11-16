@@ -12,7 +12,7 @@ export function SiteFooter({ settings }: { settings: EventSettings }) {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <p>One list for this event. The host clears it when the night is over.</p>
+        <p className="site-credit">Owned by Bdgridpixel</p>
         {links.length > 0 ? (
           <ul className="site-socials" aria-label="Social links">
             {links.map(({ href, label, Icon }) => (

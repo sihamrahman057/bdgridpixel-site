@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { formatBangladeshStamp, remainingMs } from "@/lib/time-bd";
 
 export function RegistrationCountdown({ closesAt }: { closesAt: string }) {
-  const [left, setLeft] = useState(() => remainingMs(closesAt));
+  const [left, setLeft] = useState<number | null>(null);
 
   useEffect(() => {
     const tick = () => setLeft(remainingMs(closesAt));
@@ -13,7 +13,14 @@ export function RegistrationCountdown({ closesAt }: { closesAt: string }) {
     return () => window.clearInterval(id);
   }, [closesAt]);
 
-  if (left == null) return null;
+  if (left == null) {
+    return (
+      <div className="rounded-lg bg-primary/15 px-3 py-2 text-sm" role="status" aria-busy="true">
+        <p className="font-mono text-xs tracking-[0.16em] text-primary uppercase">Closes in Bangladesh time</p>
+        <p className="mt-1 font-display text-2xl leading-none">Checking the clock…</p>
+      </div>
+    );
+  }
   if (left <= 0) {
     return (
       <p className="rounded-lg bg-destructive/15 px-3 py-2 text-sm text-destructive" role="status">
